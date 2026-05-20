@@ -1,5 +1,41 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    /********************************************
+     * SOLO EJECUTAR EN LISTADO DE ISSUES
+     *
+     * NO ejecutar en:
+     * /issues/123
+     ********************************************/
+
+    const path =
+        window.location.pathname;
+
+    /*
+     * SI ES ISSUE INDIVIDUAL
+     */
+
+    if (
+        /^\/issues\/\d+$/.test(path)
+    ) {
+
+        return;
+
+    }
+
+    /*
+     * SI NO EXISTE TABLA
+     */
+
+    if (
+        !document.querySelector(
+            "table.list.issues"
+        )
+    ) {
+
+        return;
+
+    }
+
     /*
      * TODAS LAS FILAS
      */
@@ -38,24 +74,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     rows.forEach(function(row) {
 
-        /*
-         * NIVEL POR DEFECTO
-         */
-
         let level = 0;
-
-        /*
-         * CLASES
-         */
 
         const classes =
             Array.from(
                 row.classList
             );
-
-        /*
-         * BUSCAR idnt-X
-         */
 
         const indentClass =
             classes.find(function(c) {
@@ -65,10 +89,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
             });
-
-        /*
-         * EXTRAER NIVEL
-         */
 
         if (indentClass) {
 
@@ -87,10 +107,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
         }
-
-        /*
-         * GUARDAR NIVEL
-         */
 
         row.dataset.level =
             level;
@@ -124,10 +140,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     rows[i]
                     .dataset.level
                 );
-
-            /*
-             * FIN DE RAMA
-             */
 
             if (
                 nextLevel <= currentLevel
@@ -173,19 +185,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     .dataset.level
                 );
 
-            /*
-             * FIN DE RAMA
-             */
-
             if (
                 nextLevel <= currentLevel
             ) {
                 break;
             }
-
-            /*
-             * HIJO DIRECTO
-             */
 
             if (
                 nextLevel ===
@@ -205,6 +209,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     /*
+     * ACTUALIZAR TOGGLE
+     */
+
+    function updateToggleText(
+        toggle,
+        collapsed,
+        childCount,
+        avgProgress
+    ) {
+
+        toggle.innerHTML =
+            `${
+                collapsed
+                ? "▶"
+                : "▼"
+            } (${childCount}) [${avgProgress}%]`;
+
+    }
+
+    /*
      * INSERTAR TOGGLES
      */
 
@@ -212,10 +236,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const directChildren =
             getDirectChildren(row);
-
-        /*
-         * SOLO SI TIENE HIJOS
-         */
 
         if (
             !directChildren.length
@@ -226,10 +246,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const descendants =
             getDescendants(row);
 
-        /*
-         * SUBJECT
-         */
-
         const subject =
             row.querySelector(
                 "td.subject"
@@ -238,10 +254,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!subject) {
             return;
         }
-
-        /*
-         * EVITAR DUPLICADOS
-         */
 
         if (
             subject.querySelector(
@@ -270,10 +282,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (!progressCell) {
                     return;
                 }
-
-                /*
-                 * PORCENTAJE REAL REDMINE
-                 */
 
                 const progressBar =
                     progressCell.querySelector(
@@ -358,7 +366,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "6px";
 
         /*
-         * AUTO COLAPSAR CERRADAS
+         * AUTO COLAPSAR
          */
 
         if (
@@ -370,13 +378,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             collapsedNodes.push(
                 row.id
-            );
-
-            localStorage.setItem(
-                storageKey,
-                JSON.stringify(
-                    collapsedNodes
-                )
             );
 
         }
@@ -395,12 +396,12 @@ document.addEventListener("DOMContentLoaded", function () {
             ? "true"
             : "false";
 
-        toggle.innerHTML =
-            `${
-                isCollapsed
-                ? "▶"
-                : "▼"
-            } (${directChildren.length}) [${avgProgress}%]`;
+        updateToggleText(
+            toggle,
+            isCollapsed,
+            directChildren.length,
+            avgProgress
+        );
 
         /*
          * INSERTAR
@@ -459,9 +460,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     toggle.dataset.collapsed =
                         "true";
 
-                    toggle.innerHTML =
-                        `▶ (${directChildren.length}) [${avgProgress}%]`;
-
                     if (
                         !collapsedNodes.includes(
                             row.id
@@ -494,15 +492,19 @@ document.addEventListener("DOMContentLoaded", function () {
                     toggle.dataset.collapsed =
                         "false";
 
-                    toggle.innerHTML =
-                        `▼ (${directChildren.length}) [${avgProgress}%]`;
-
                     collapsedNodes =
                         collapsedNodes.filter(
                             id => id !== row.id
                         );
 
                 }
+
+                updateToggleText(
+                    toggle,
+                    toggle.dataset.collapsed === "true",
+                    directChildren.length,
+                    avgProgress
+                );
 
                 localStorage.setItem(
                     storageKey,
@@ -516,95 +518,59 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
 
+    /*
+     * BOTÓN OCULTAR CERRADAS
+     */
 
-/*
- * BOTÓN OCULTAR CERRADAS
- */
+    const hideClosedBtn =
+        document.createElement(
+            "button"
+        );
 
-const hideClosedBtn =
-    document.createElement(
-        "button"
-    );
+    hideClosedBtn.innerText =
+        "Ocultar cerradas";
 
-hideClosedBtn.innerText =
-    "Ocultar cerradas";
+    hideClosedBtn.style.marginRight =
+        "10px";
 
-hideClosedBtn.style.marginRight =
-    "10px";
+    let closedHidden = false;
 
-let closedHidden = false;
+    hideClosedBtn.addEventListener(
+        "click",
+        function() {
 
-hideClosedBtn.addEventListener(
-    "click",
-    function() {
+            closedHidden =
+                !closedHidden;
 
-        closedHidden =
-            !closedHidden;
+            document
+                .querySelectorAll(
+                    "tr.issue.closed"
+                )
+                .forEach(function(row) {
 
-        /*
-         * OCULTAR / MOSTRAR
-         */
+                    if (
+                        closedHidden
+                    ) {
 
-        document
-            .querySelectorAll(
-                "tr.issue.closed"
-            )
-            .forEach(function(row) {
+                        row.style.display =
+                            "none";
 
-                /*
-                 * NO TOCAR
-                 * filas ya ocultas
-                 * por colapsado
-                 */
-
-                if (
-                    closedHidden
-                ) {
-
-                    row.dataset.closedHidden =
-                        "true";
-
-                    row.style.display =
-                        "none";
-
-                } else {
-
-                    /*
-                     * SOLO RESTAURAR
-                     * SI NO ESTÁ EN RAMA
-                     * COLAPSADA
-                     */
-
-                    row.dataset.closedHidden =
-                        "false";
-
-                    const parentCollapsed =
-                        row.closest(
-                            ".tree-collapsed"
-                        );
-
-                    if (!parentCollapsed) {
+                    } else {
 
                         row.style.display =
                             "";
 
                     }
 
-                }
+                });
 
-            });
+            hideClosedBtn.innerText =
+                closedHidden
+                ? "Mostrar cerradas"
+                : "Ocultar cerradas";
 
-        /*
-         * TEXTO BOTÓN
-         */
-
-        hideClosedBtn.innerText =
-            closedHidden
-            ? "Mostrar cerradas"
-            : "Ocultar cerradas";
-
-    }
-);
+        }
+    );
 
     /*
      * BOTÓN AGRUPAR POR PARENT
@@ -680,7 +646,10 @@ hideClosedBtn.addEventListener(
 
                     toggle.innerHTML =
                         toggle.innerHTML
-                            .replace("▶", "▼");
+                            .replace(
+                                "▶",
+                                "▼"
+                            );
 
                 });
 
@@ -715,20 +684,7 @@ hideClosedBtn.addEventListener(
         "click",
         function() {
 
-            document
-                .querySelectorAll(
-                    ".tree-toggle"
-                )
-                .forEach(function(toggle) {
-
-                    toggle.dataset.collapsed =
-                        "true";
-
-                    toggle.innerHTML =
-                        toggle.innerHTML
-                            .replace("▼", "▶");
-
-                });
+            collapsedNodes = [];
 
             rows.forEach(
                 function(row) {
@@ -746,19 +702,37 @@ hideClosedBtn.addEventListener(
                             row.id
                         );
 
+                        descendants.forEach(
+                            function(desc) {
+
+                                desc.style.display =
+                                    "none";
+
+                            }
+                        );
+
                     }
-
-                    descendants.forEach(
-                        function(desc) {
-
-                            desc.style.display =
-                                "none";
-
-                        }
-                    );
 
                 }
             );
+
+            document
+                .querySelectorAll(
+                    ".tree-toggle"
+                )
+                .forEach(function(toggle) {
+
+                    toggle.dataset.collapsed =
+                        "true";
+
+                    toggle.innerHTML =
+                        toggle.innerHTML
+                            .replace(
+                                "▼",
+                                "▶"
+                            );
+
+                });
 
             localStorage.setItem(
                 storageKey,
@@ -784,6 +758,7 @@ hideClosedBtn.addEventListener(
         contextual.appendChild(
             groupBtn
         );
+
         contextual.appendChild(
             hideClosedBtn
         );
