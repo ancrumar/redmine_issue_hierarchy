@@ -1,0 +1,21 @@
+<div style="margin-left:<%= level * 25 %>px; padding:4px;">
+  <% unless issue.leaf? %>
+    ▶
+  <% end %>
+
+  <strong>#<%= issue.id %></strong>
+
+  <%= link_to issue.subject, issue_path(issue) %>
+
+  <% if issue.status %>
+    - <em><%= issue.status.name %></em>
+  <% end %>
+</div>
+
+<% Issue.where(parent_id: issue.id).order(:id).each do |child| %>
+  <%= render partial: 'issue',
+             locals: {
+               issue: child,
+               level: level + 1
+             } %>
+<% end %>

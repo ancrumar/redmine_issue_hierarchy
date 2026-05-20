@@ -1,0 +1,129 @@
+tr.issue td.subject {
+  position: relative;
+}
+
+.issue-tree-indent {
+  display: inline-block;
+  width: 20px;
+}
+
+.issue-tree-toggle {
+  cursor: pointer;
+  color: #666;
+  margin-right: 4px;
+  font-weight: bold;
+}
+
+.issue-tree-parent {
+  font-weight: bold;
+}
+
+.issue-tree-hidden {
+  display: none;
+}
+tr.issue.hascontextmenu td.subject {
+    position: relative;
+}
+
+tr.issue td.subject {
+    padding-left: 10px;
+}
+
+/* Nivel 1 */
+tr.issue.idnt-1 td.subject {
+    padding-left: 30px;
+}
+
+/* Nivel 2 */
+tr.issue.idnt-2 td.subject {
+    padding-left: 50px;
+}
+
+/* Nivel 3 */
+tr.issue.idnt-3 td.subject {
+    padding-left: 70px;
+}
+
+/* Nivel 4 */
+tr.issue.idnt-4 td.subject {
+    padding-left: 90px;
+}
+
+/* Línea visual */
+tr.issue.idnt-1 td.subject::before,
+tr.issue.idnt-2 td.subject::before,
+tr.issue.idnt-3 td.subject::before,
+tr.issue.idnt-4 td.subject::before {
+    content: "↳";
+    color: #999;
+    margin-right: 8px;
+}
+
+tr.issue td.subject {
+    position: relative;
+    white-space: nowrap;
+}
+
+/* INDENTACIONES */
+
+tr.issue.idnt-1 td.subject {
+    padding-left: 30px;
+}
+
+tr.issue.idnt-2 td.subject {
+    padding-left: 50px;
+}
+
+tr.issue.idnt-3 td.subject {
+    padding-left: 70px;
+}
+
+tr.issue.idnt-4 td.subject {
+    padding-left: 90px;
+}
+
+tr.issue.idnt-5 td.subject {
+    padding-left: 110px;
+}
+
+/* LINEAS */
+
+tr.issue.idnt-1 td.subject::before,
+tr.issue.idnt-2 td.subject::before,
+tr.issue.idnt-3 td.subject::before,
+tr.issue.idnt-4 td.subject::before,
+tr.issue.idnt-5 td.subject::before {
+
+    content: "├─ ";
+    color: #999;
+}
+
+/* TOGGLE */
+
+.tree-toggle {
+    color: #444;
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+/* CERRADAS */
+
+tr.issue.closed td.subject {
+    opacity: 0.6;
+}
+
+/* BOTONES */
+
+#content button {
+
+    margin-right: 10px;
+    padding: 5px 10px;
+    border: 1px solid #bbb;
+    background: #f5f5f5;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#content button:hover {
+    background: #e9e9e9;
+}
