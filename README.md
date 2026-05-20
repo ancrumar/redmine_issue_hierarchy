@@ -193,3 +193,12 @@ https://github.com/ancrumar
 If you find this plugin useful, consider starring the repository ⭐
 
 https://github.com/ancrumar/redmine_issue_hierarchy
+
+
+# 📸 Preview
+
+![Main](screenshots/main.png)
+
+![Collapsed](screenshots/Collapsed.png)
+
+![Hide Closed](screenshots/hideclosed.png)
